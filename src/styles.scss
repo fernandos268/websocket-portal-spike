@@ -1,0 +1,49 @@
+@import '~react-md/src/scss/react-md';
+
+$md-primary-color:#03a9f4;
+$md-secondary-color: lime;
+
+.multiFields__addBtn {
+	width: 100%;
+	height: auto;
+	margin-top: 1em;
+	box-shadow: none;
+   overflow: hidden;
+   align-items: center;
+   justify-content: center;
+   display: flex;
+	padding: 8px 16px;
+	min-height: unset;
+	border-radius: .25em;
+	background-color: transparent;
+	border: 2px dashed $md-primary-color;
+
+
+	.md-icon {
+		color: darken($md-primary-color,10%);
+	}
+	.md-icon-text {
+		width: auto;
+
+		flex-grow: 0;
+		flex-shrink: 0;
+	}
+
+	&:hover {
+		background-color: rgba($md-primary-color,.25) !important;
+
+		.md-icon-separator:before {
+			opacity: 1;
+			transform: scale(2);
+		}
+
+		.md-icon ,
+		.md-icon-text {
+			color: #FFF;
+		}
+
+	}
+}
+
+
+@include react-md-everything;
