@@ -1,10 +1,10 @@
 import React from 'react'
 import reverse from 'lodash/reverse'
 import { Grid, Cell, Card as MDCard } from 'react-md'
-import { Card, Icon, List, Label, Item, Image } from 'semantic-ui-react'
+import { Card, Icon, List, Label, Item, Image, Placeholder } from 'semantic-ui-react'
 
 const ListMapper = (list) => {
-    return list.map((item, index) => (
+    return list.length ? list.map((item, index) => (
         <Item key={`${item.socket_id}-${index}`}>
             <Item.Content>
                 <Item.Header>
@@ -18,6 +18,13 @@ const ListMapper = (list) => {
                 </Item.Description>
             </Item.Content>
         </Item>
+    )) : Array(5).fill("dummy").map((item, index) => (
+        <Placeholder key={index}>
+            <Placeholder.Header image>
+                <Placeholder.Line />
+                <Placeholder.Line />
+            </Placeholder.Header>
+        </Placeholder>
     ))
 }
 

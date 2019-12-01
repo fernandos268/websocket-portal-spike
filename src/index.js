@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 
 import '../src/styles.scss'
 import 'semantic-ui-css/semantic.min.css'
+import 'antd/dist/antd.css'
 
 import App from './App'
 

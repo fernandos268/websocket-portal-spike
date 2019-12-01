@@ -5,15 +5,18 @@ import { Card, Icon, Segment } from 'semantic-ui-react'
 
 import Messages from './components/Message/Messages'
 import MessageField from './components/Message/MessageField'
+import MessageFileInput from './components/Message/MessageFileInput'
 
 import useForm from './components/Message/useForm'
 
 export default () => {
     const {
+        fileInfo,
         fieldValues,
         messageList,
         handleInputChange,
         handleSend,
+        handleFileChange
     } = useForm()
 
     return (
@@ -24,7 +27,6 @@ export default () => {
             <Cell align='top' size={6} style={{ height: '75vh' }} >
                 <Segment
                     placeholder
-                    fluid
                     style={{ height: '75vh', overflowY: 'hidden' }}
                     raised
                     color='blue'
@@ -35,7 +37,14 @@ export default () => {
                     />
                 </Segment>
                 <Segment
-                    fluid
+                    attached
+                >
+                    <MessageFileInput
+                        fileInfo={fileInfo}
+                        handleFileChange={handleFileChange}
+                    />
+                </Segment>
+                <Segment
                     attached='bottom'
                 >
                     <MessageField

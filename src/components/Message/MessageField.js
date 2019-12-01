@@ -8,7 +8,7 @@ import {
     Icon
 } from 'semantic-ui-react'
 
-const MessageField = (props) => {
+export default (props) => {
     const {
         fieldValues,
         handleInputChange,
@@ -42,5 +42,3 @@ const MessageField = (props) => {
         </Form>
     )
 }
-
-export default MessageField
