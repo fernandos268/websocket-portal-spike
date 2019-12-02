@@ -16,7 +16,7 @@ export default () => {
     const [fileInfo, setFileInfo] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [fileList, setFileList] = useState([])
-    const [uploadProgress, setUploadProgress] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
 
     useEffect(() => {
         socket.current = socketIO('http://localhost:4040')
