@@ -13,12 +13,10 @@ export default () => {
         message: ''
     })
     const [messageList, setMessageList] = useState([])
-    const [fileInfo, setFileInfo] = useState({
-        data: '',
-        file: ''
-    })
+    const [fileInfo, setFileInfo] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [fileList, setFileList] = useState([])
+    const [uploadProgress, setUploadProgress] = useState(false)
 
     useEffect(() => {
         socket.current = socketIO('http://localhost:4040')
@@ -26,6 +24,7 @@ export default () => {
         socket.current.on('new message', data => {
             setMessageList(list => [...list, data])
         })
+        socket.current.on('upload sucess', data => setUploadProgress(data.upload_progress))
     }, [])
 
     useEffect(() => {
@@ -34,6 +33,14 @@ export default () => {
             console.log(data)
         })
     }, []);
+
+    useEffect(() => {
+        console.log('UPLOAD PROGRESS ---> ', uploadProgress)
+    }, [uploadProgress])
+
+    const handleSetSocketID = (id) => {
+        setSocketId(id)
+    }
 
     const handleInputChange = (value, key) => {
         const newFieldValues = { ...fieldValues, [key]: value }
@@ -45,70 +52,45 @@ export default () => {
         setMessageList(newList)
     }
 
-    const handleFileChange = (data, file) => {
-        console.log("TCL: handleFileChange -> data, file", { data, file })
-        setFileInfo({ data, file })
+    const handleFileChange = (data) => {
+        if (fileList.length === 0) {
+            setFileList(list => [...list, data])
+            setFileInfo(data)
+        } else if (fileList.length === 1) {
+            setFileList(list => [...list, data].slice(1))
+            setFileInfo(data)
+        }
+    }
+
+    const handleRemoveFile = (fileToRemove) => {
+        console.log("TCL: handleRemoveFile -> handleRemoveFile", fileToRemove)
+        setFileInfo(info => info.uid !== fileToRemove.uid ? info : null)
+        setFileList(list => [...list].filter(file => file.uid !== fileToRemove.uid))
     }
 
     const handleSend = () => {
-        // if (fieldValues.user !== '' && fieldValues.message !== '') {
-        // socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
-        // }
+        if (fieldValues.user === '' && fieldValues.message === '') {
+            return message.error('USER AND MESSAGE FIELDS ARE REQUIRED')
+        }
 
-        // if (fileInfo) {
-        // const result = await axios({
-        // url: 'http://localhost:4040/fileupload',
-        // method: 'post',
-        // data: { file: fileInfo }
-        // })
-        // console.log('AXIOS RESPONSE', result);
-        // }
-
-        const {
-            data,
-            file
-        } = fileInfo
-
-        if (!data && !file) {
+        if (!fileInfo) {
             return message.error('NO FILE TO UPLOAD')
         }
 
-        // socketIOStream.forceBase64 = true
-        const filename = data.name
-        const filesize = data.size
+        socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
         const enc = 'multipart/form-data'
         const stream = socketIOStream.createStream()
+        const file_name = `${fieldValues.user}--${fileInfo.name}`
+
         socketIOStream(socket.current).emit('file upload', stream, {
             data: fileInfo,
-            size: file,
-            fileName: filename,
+            size: fileInfo.size,
+            file_name,
             enc: enc
         })
-        const blobstream = socketIOStream.createBlobReadStream(data);
+        const blobstream = socketIOStream.createBlobReadStream(fileInfo);
         console.log("TCL: handleSend -> blobstream", blobstream)
         blobstream.pipe(stream);
-
-
-        // ---------------------------------------------------------------
-        // const stream = socketIOStream.createStream()
-        // socketIOStream.createBlobReadStream(data.files[0].buffer).pipe(stream)
-        // const blobStream = socketIOStream.createBlobReadStream(data.files[0].buffer.buffer)
-        // var size = 0
-        // blobStream.on('data', function (chunk) {
-        //     size += chunk.length;
-        //     console.log(Math.floor(size / data.size * 100) + '%')
-        // })
-
-        // blobStream.pipe(stream)
-        // socketIOStream(socket.current).emit('file-add-stream', {name: 'images.jpeg'})
-        // socketIOStream(socket.current).on('file-upload-stream-success', function (data) {
-        //     console.info('file uploaded to server')
-        //     console.log(data)
-        // })
-    }
-
-    const handleSetSocketID = (id) => {
-        setSocketId(id)
     }
 
     return {
@@ -117,9 +99,11 @@ export default () => {
         fileInfo,
         fieldValues,
         messageList,
+        uploadProgress,
         handleInputChange,
         handleAddToList,
         handleSend,
-        handleFileChange
+        handleFileChange,
+        handleRemoveFile
     }
 }

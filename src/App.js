@@ -16,9 +16,11 @@ export default () => {
         fileInfo,
         fieldValues,
         messageList,
+        uploadProgress,
         handleInputChange,
         handleSend,
-        handleFileChange
+        handleFileChange,
+        handleRemoveFile
     } = useForm()
 
     return (
@@ -27,35 +29,37 @@ export default () => {
             style={{ alignItems: "center", display: "flex", justifyContent: "center", height: '100vh' }}
         >
             <Cell align='top' size={6} style={{ height: '55vh' }} >
-                <Segment
-                    placeholder
-                    style={{ height: '55vh', overflowY: 'hidden' }}
-                    raised
-                    color='blue'
-                    attached='top'
-                >
-                    <Messages
-                        messageList={messageList}
-                    />
-                </Segment>
-                <Segment
-                    attached
-                >
-                    <MessageFileInput
-                        fileList={fileList}
-                        fileInfo={fileInfo}
-                        handleFileChange={handleFileChange}
-                    />
-                </Segment>
-                <Segment
-                    attached='bottom'
-                >
-                    <MessageField
-                        fieldValues={fieldValues}
-                        handleInputChange={handleInputChange}
-                        handleSend={handleSend}
-                        isLoading={isLoading}
-                    />
+                <Segment color='blue' raised>
+                    <Segment
+                        vertical
+                        placeholder
+                        style={{ height: '55vh', overflowY: 'hidden' }}
+                    >
+                        <Messages
+                            messageList={messageList}
+                        />
+                    </Segment>
+                    <Segment
+                        vertical
+                    >
+                        <MessageFileInput
+                            fileList={fileList}
+                            fileInfo={fileInfo}
+                            handleFileChange={handleFileChange}
+                            handleRemoveFile={handleRemoveFile}
+                            uploadProgress={uploadProgress}
+                        />
+                    </Segment>
+                    <Segment
+                        vertical
+                    >
+                        <MessageField
+                            fieldValues={fieldValues}
+                            handleInputChange={handleInputChange}
+                            handleSend={handleSend}
+                            isLoading={isLoading}
+                        />
+                    </Segment>
                 </Segment>
             </Cell>
         </Grid>
