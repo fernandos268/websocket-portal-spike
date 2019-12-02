@@ -11,6 +11,8 @@ import useForm from './components/Message/useForm'
 
 export default () => {
     const {
+        fileList,
+        isLoading,
         fileInfo,
         fieldValues,
         messageList,
@@ -24,10 +26,10 @@ export default () => {
             className='md-paper'
             style={{ alignItems: "center", display: "flex", justifyContent: "center", height: '100vh' }}
         >
-            <Cell align='top' size={6} style={{ height: '75vh' }} >
+            <Cell align='top' size={6} style={{ height: '55vh' }} >
                 <Segment
                     placeholder
-                    style={{ height: '75vh', overflowY: 'hidden' }}
+                    style={{ height: '55vh', overflowY: 'hidden' }}
                     raised
                     color='blue'
                     attached='top'
@@ -40,6 +42,7 @@ export default () => {
                     attached
                 >
                     <MessageFileInput
+                        fileList={fileList}
                         fileInfo={fileInfo}
                         handleFileChange={handleFileChange}
                     />
@@ -51,6 +54,7 @@ export default () => {
                         fieldValues={fieldValues}
                         handleInputChange={handleInputChange}
                         handleSend={handleSend}
+                        isLoading={isLoading}
                     />
                 </Segment>
             </Cell>

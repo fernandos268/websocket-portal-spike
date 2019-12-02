@@ -10,9 +10,10 @@ import {
 
 export default (props) => {
     const {
+        isLoading,
         fieldValues,
         handleInputChange,
-        handleSend
+        handleSend,
     } = props
 
     return (
@@ -34,9 +35,9 @@ export default (props) => {
                         value={fieldValues.message}
                         onChange={e => handleInputChange(e.target.value, 'message')}
                     />
-                    <Button color='blue' type='submit' >
+                    <Button color='blue' type='submit' disabled={isLoading}>
                         <Icon name='paper plane' /> Send
-                     </Button>
+                    </Button>
                 </Input>
             </Form.Field>
         </Form>

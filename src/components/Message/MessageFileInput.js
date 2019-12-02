@@ -1,30 +1,30 @@
 import React from 'react'
 import {
     Upload,
-    Icon
+    Icon,
+    Button
 } from 'antd'
+
+import { FileInput, FileUpload } from 'react-md'
 
 const { Dragger } = Upload
 
 export default (props) => {
     const {
         fileInfo,
+        fileList,
         handleFileChange
     } = props
 
-    const fileInputProps = {
-        name: 'file',
-        multiple: false,
-        action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-        onChange: info => handleFileChange(info),
-    }
-
     return (
-        <Dragger {...fileInputProps}>
-            <p className="ant-upload-drag-icon">
-                <Icon type="inbox" />
-            </p>
-            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-        </Dragger>
+        <div>
+            <FileUpload
+                onLoad={handleFileChange.bind(this)}
+                id='terms_upload'
+                label='Upload File'
+                flat
+            />
+        </div>
     )
+
 }
