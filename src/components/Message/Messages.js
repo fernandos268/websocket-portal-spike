@@ -41,6 +41,12 @@ const ListMapper = (list) => {
                         {item.message}
                     </Label>
                 </Item.Description>
+                {
+                    item.file_url &&
+                    <Item.Extra>
+                        <Image src={item.file_url} size='small' />
+                    </Item.Extra>
+                }
             </Item.Content>
         </Item>
     ))

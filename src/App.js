@@ -51,9 +51,6 @@ export default () => {
                             uploadProgress={uploadProgress}
                         />
                     </Segment>
-                    <Segment>
-                        <Image src={streamedFile} size='small' />
-                    </Segment>
                     <Segment
                         vertical
                     >

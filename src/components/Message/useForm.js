@@ -10,7 +10,9 @@ export default () => {
     const [socketId, setSocketId] = useState('')
     const [fieldValues, setFieldValues] = useState({
         user: '',
-        message: ''
+        message: '',
+        file_uid: '',
+        file_url: ''
     })
     const [messageList, setMessageList] = useState([])
     const [fileInfo, setFileInfo] = useState(null)
@@ -23,7 +25,7 @@ export default () => {
     useEffect(() => {
         socket.current = socketIO('http://localhost:4040')
         socket.current.on('connected', socket_id => handleSetSocketID(socket_id))
-        socket.current.on('new message', data => setMessageList(list => [...list, data]))
+        // socket.current.on('new message', data => setMessageList(list => [...list, data]))
         socket.current.on('upload progress', data => setUploadProgress(data.progress))
         socket.current.on('upload success', data => setUploadResponse(data))
     }, [])
@@ -43,6 +45,9 @@ export default () => {
     useEffect(() => {
         socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
             console.log('received', data)
+            // const newFieldValues = { ...fieldValues, file_uid: data.file_uid }
+            // setFieldValues(newFieldValues)
+
             let parts = []
             stream.on('data', (data) => {
                 console.log('data', data)
@@ -52,9 +57,25 @@ export default () => {
             stream.on('end', () => {
                 console.log('end')
                 parseImage(parts)
-            });
-        });
-    }, []);
+                setStreamedFile(parseImage(parts))
+                const newFieldValues = {
+                    ...fieldValues,
+                    file_name: data.file_name,
+                    file_url: parseImage(parts)
+                }
+                setFieldValues(newFieldValues)
+
+                console.log('NEW FIELD VALUES');
+
+                setMessageList(list => [...list, {
+                    ...data.message,
+                    file_name: data.file_name,
+                    file_url: parseImage(parts)
+                }])
+                clearFieldValues()
+            })
+        })
+    }, [])
 
     useEffect(() => {
         console.log('STREAMED FILE -->', streamedFile)
@@ -69,8 +90,17 @@ export default () => {
         const blob = new Blob([...parts], { type: "image/jpeg" });
         const urlCreator = window.URL
         window.webkitURL;
-        const imageUrl = urlCreator.createObjectURL(blob);
-        setStreamedFile(imageUrl)
+        return urlCreator.createObjectURL(blob);
+
+    }
+
+    const clearFieldValues = () => {
+        setFieldValues(fieldValues => ({
+            ...fieldValues,
+            message: '',
+            file_uid: '',
+            file_url: ''
+        }))
     }
 
     const handleInputChange = (value, key) => {
@@ -118,6 +148,7 @@ export default () => {
             fileInfo,
             size: fileInfo.size,
             file_name,
+            message: { ...fieldValues, socket_id: socketId }
         })
         const blobstream = socketIOStream.createBlobReadStream(fileInfo)
         blobstream.pipe(stream)
