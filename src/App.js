@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { Grid, Cell, Card as MDCard } from 'react-md'
-import { Card, Icon, Segment } from 'semantic-ui-react'
+import { Grid, Cell } from 'react-md'
+import { Card, Icon, Segment, Image } from 'semantic-ui-react'
 
 import Messages from './components/Message/Messages'
 import MessageField from './components/Message/MessageField'
@@ -11,6 +11,7 @@ import useForm from './components/Message/useForm'
 
 export default () => {
     const {
+        streamedFile,
         fileList,
         isLoading,
         fileInfo,
@@ -49,6 +50,9 @@ export default () => {
                             handleRemoveFile={handleRemoveFile}
                             uploadProgress={uploadProgress}
                         />
+                    </Segment>
+                    <Segment>
+                        <Image src={streamedFile} size='small' />
                     </Segment>
                     <Segment
                         vertical

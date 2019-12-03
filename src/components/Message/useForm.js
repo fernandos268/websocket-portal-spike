@@ -17,29 +17,60 @@ export default () => {
     const [isLoading, setIsLoading] = useState(false)
     const [fileList, setFileList] = useState([])
     const [uploadProgress, setUploadProgress] = useState(0)
+    const [streamedFile, setStreamedFile] = useState(null)
+    const [uploadResponse, setUploadResponse] = useState(null)
 
     useEffect(() => {
         socket.current = socketIO('http://localhost:4040')
         socket.current.on('connected', socket_id => handleSetSocketID(socket_id))
-        socket.current.on('new message', data => {
-            setMessageList(list => [...list, data])
-        })
-        socket.current.on('upload sucess', data => setUploadProgress(data.upload_progress))
+        socket.current.on('new message', data => setMessageList(list => [...list, data]))
+        socket.current.on('upload progress', data => setUploadProgress(data.progress))
+        socket.current.on('upload success', data => setUploadResponse(data))
     }, [])
 
     useEffect(() => {
-        socketIOStream(socket.current).on('file-add-stream-success', function (data) {
-            console.info('file uploaded to server')
-            console.log(data)
-        })
+        console.log("uploadProgress --->", uploadProgress)
+    }, [uploadProgress])
+
+    // useEffect(() => {
+    //     if (uploadResponse && uploadResponse.success) {
+    //         const stream = socketIOStream.createStream()
+    //         const file_name = `${fieldValues.user}--${fileInfo.name}`
+    //         socketIOStream(socket.current).emit('client-stream-request', stream, { file_name })
+    //     }
+    // }, [uploadResponse])
+
+    useEffect(() => {
+        socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
+            console.log('received', data)
+            let parts = []
+            stream.on('data', (data) => {
+                console.log('data', data)
+                parts.push(data)
+            })
+
+            stream.on('end', () => {
+                console.log('end')
+                parseImage(parts)
+            });
+        });
     }, []);
 
     useEffect(() => {
-        console.log('UPLOAD PROGRESS ---> ', uploadProgress)
-    }, [uploadProgress])
+        console.log('STREAMED FILE -->', streamedFile)
+    }, [streamedFile])
 
     const handleSetSocketID = (id) => {
         setSocketId(id)
+    }
+
+    const parseImage = (parts) => {
+        // const arrayBufferView = new Uint8Array(image);
+        const blob = new Blob([...parts], { type: "image/jpeg" });
+        const urlCreator = window.URL
+        window.webkitURL;
+        const imageUrl = urlCreator.createObjectURL(blob);
+        setStreamedFile(imageUrl)
     }
 
     const handleInputChange = (value, key) => {
@@ -53,6 +84,8 @@ export default () => {
     }
 
     const handleFileChange = (data) => {
+        console.log("TCL: handleFileChange -> handleFileChange", data)
+        setUploadProgress(0)
         if (fileList.length === 0) {
             setFileList(list => [...list, data])
             setFileInfo(data)
@@ -66,6 +99,7 @@ export default () => {
         console.log("TCL: handleRemoveFile -> handleRemoveFile", fileToRemove)
         setFileInfo(info => info.uid !== fileToRemove.uid ? info : null)
         setFileList(list => [...list].filter(file => file.uid !== fileToRemove.uid))
+        setUploadProgress(0)
     }
 
     const handleSend = () => {
@@ -78,22 +112,19 @@ export default () => {
         }
 
         socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
-        const enc = 'multipart/form-data'
-        const stream = socketIOStream.createStream()
         const file_name = `${fieldValues.user}--${fileInfo.name}`
-
+        const stream = socketIOStream.createStream()
         socketIOStream(socket.current).emit('file upload', stream, {
-            data: fileInfo,
+            fileInfo,
             size: fileInfo.size,
             file_name,
-            enc: enc
         })
-        const blobstream = socketIOStream.createBlobReadStream(fileInfo);
-        console.log("TCL: handleSend -> blobstream", blobstream)
-        blobstream.pipe(stream);
+        const blobstream = socketIOStream.createBlobReadStream(fileInfo)
+        blobstream.pipe(stream)
     }
 
     return {
+        streamedFile,
         fileList,
         isLoading,
         fileInfo,
