@@ -42,18 +42,23 @@ const ListMapper = (list) => {
                     </Label>
                 </Item.Description>
                 {
-                    item.file_url &&
-                    <Item.Extra>
-                        <Image src={item.file_url} size='small' />
-                    </Item.Extra>
+                    item.files.length > 0 &&
+                    item.files.map(file => (
+                        <Item.Extra key={file.file_uid}>
+                            <Image src={file.file_url} size='small' />
+                        </Item.Extra>
+                    ))
                 }
             </Item.Content>
         </Item>
     ))
 }
 
-export default ({ messageList = [] }) => (
-    <Item.Group style={{ height: '79vh', maxHeight: '79vh', overflowY: 'auto' }}>
-        {ListMapper(reverse([...messageList]))}
-    </Item.Group>
-)
+export default ({ messageList = [] }) => {
+    console.log('MESSAGE LIST COMPONENT-->', messageList);
+    return (
+        <Item.Group style={{ height: '79vh', maxHeight: '79vh', overflowY: 'auto' }}>
+            {ListMapper(reverse([...messageList]))}
+        </Item.Group>
+    )
+}

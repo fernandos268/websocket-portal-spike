@@ -7,11 +7,10 @@ import Messages from './components/Message/Messages'
 import MessageField from './components/Message/MessageField'
 import MessageFileInput from './components/Message/MessageFileInput'
 
-import useForm from './components/Message/useForm'
+import useHooks from './components/Message/useHooks'
 
 export default () => {
     const {
-        streamedFile,
         fileList,
         isLoading,
         fileInfo,
@@ -22,7 +21,7 @@ export default () => {
         handleSend,
         handleFileChange,
         handleRemoveFile
-    } = useForm()
+    } = useHooks()
 
     return (
         <Grid
