@@ -7,17 +7,30 @@ import {
     Modal
 } from 'antd'
 
-import { FileInput, FileUpload } from 'react-md'
+import {
+    Card,
+    Image,
+    Segment,
+    Button as SUIButton,
+    Dimmer,
+    Header
+} from 'semantic-ui-react'
 
 const { Dragger } = Upload
 
 export default (props) => {
     const [previewVisible, setPreviewVisible] = useState(false)
     const [previewImage, setPreviewImage] = useState('')
+
+    const [isDimmed, setIsDimmed] = useState({
+        target: '',
+        dimmed: false
+    })
+
     const {
         fileInfo,
         fileList,
-        uploadProgress = 0,
+        uploadProgress,
         handleFileChange,
         handleRemoveFile
     } = props
@@ -48,6 +61,7 @@ export default (props) => {
         processData: false,
         processData: false,
         listType: "picture-card",
+        showUploadList: false,
         accept: '.png, .jpg, .jpeg',
         customRequest: () => false,
         onRemove: file => handleRemoveFile(file),
@@ -63,23 +77,118 @@ export default (props) => {
         </div>
     )
 
+    const fileListMapper = (list = []) => {
+        return list.map(file => {
+            const progress = uploadProgress.find(progress => progress.file_uid === file.uid) || {}
+            return (
+                <Card>
+                    <Dimmer.Dimmable
+                        as={Image}
+                        dimmed={file.uid === isDimmed.target ? isDimmed.dimmed : false}
+                        dimmer={{
+                            active: file.uid === isDimmed.target ? isDimmed.dimmed : false,
+                            content: (
+                                <div>
+                                    <Header as='h4' inverted>
+                                        {file.name}
+                                    </Header>
+                                    <SUIButton circular color='red' icon='trash alternate' onClick={() => handleRemoveFile(file)} />
+                                </div>
+                            )
+                        }}
+                        onMouseEnter={() => setIsDimmed({
+                            target: file.uid,
+                            dimmed: true
+                        })}
+                        onMouseLeave={() => setIsDimmed({
+                            target: file.uid,
+                            dimmed: false
+                        })}
+                        size='small'
+                        src={file.url}
+                    />
+                    {
+
+
+                        (file.uid === progress.file_uid && parseInt(progress.percent) > 0) &&
+                        <Segment basic>
+                            <Progress
+                                strokeColor={{
+                                    from: '#108ee9',
+                                    to: '#87d068',
+                                }}
+                                percent={file.uid === progress.file_uid ? parseInt(progress.percent) : 0}
+                                status={file.uid === progress.file_uid ? parseInt(progress.percent) !== 100 ? 'active' : 'success' : ''}
+                            />
+                        </Segment>
+                    }
+
+                </Card>
+            )
+        })
+    }
+
+    // console.log('MessageFileInput --> PROGRESS LIST', uploadProgress)
+
     return (
         <Fragment>
+            <Dragger {...draggerProps} listType="picture-card">
+                <p className="ant-upload-drag-icon">
+                    <Icon type="inbox" />
+                </p>
+                <p className="ant-upload-text">Click or drag file to attach here</p>
+            </Dragger>
             {
-                parseInt(uploadProgress) !== 0 &&
-                <Progress percent={uploadProgress} status={uploadProgress !== 100 ? 'active' : 'success'} />
+                fileList.length !== 0 &&
+                <Segment basic>
+                    <Card.Group itemsPerRow={4}>
+                        {fileListMapper(fileList)}
+                    </Card.Group>
+                </Segment>
             }
-            <div className="clearfix">
-                <Upload {...draggerProps} >
-                    {uploadButton}
-                </Upload>
-                <Modal visible={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
-                    <img alt="example" style={{ width: '100%' }} src={previewImage} />
-                </Modal>
-            </div>
         </Fragment>
     )
 }
+
+// {
+//     parseInt(uploadProgress) !== 0 &&{
+//     parseInt(uploadProgress) !== 0 &&
+//     <Progress percent={uploadProgress} status={uploadProgress !== 100 ? 'active' : 'success'} />
+// }
+// <div className="clearfix">
+//     <Upload {...draggerProps} >
+//         {uploadButton}
+//         <Progress
+//             strokeColor={{
+//                 '0%': '#108ee9',
+//                 '100%': '#87d068',
+//             }}
+//             percent={99.9}
+//             status='active'
+//             showInfo={false}
+//         />
+//     </Upload>
+//     <Modal visible={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
+//         <img alt="example" style={{ width: '100%' }} src={previewImage} />
+//     </Modal>
+// </div>
+
+//     <Upload {...draggerProps} >
+//         {uploadButton}
+//         <Progress
+//             strokeColor={{
+//                 '0%': '#108ee9',
+//                 '100%': '#87d068',
+//             }}
+//             percent={99.9}
+//             status='active'
+//             showInfo={false}
+//         />
+//     </Upload>
+//     <Modal visible={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
+//         <img alt="example" style={{ width: '100%' }} src={previewImage} />
+//     </Modal>
+// </div>
 
 
 

@@ -11,6 +11,7 @@ const urlCreator = window.URL || window.webkitURL
 
 export default () => {
     let socket = useRef(null)
+
     const [socketId, setSocketId] = useState('')
     const [fieldValues, setFieldValues] = useState({
         user: '',
@@ -24,12 +25,9 @@ export default () => {
         message: ''
     })
 
-    const [uploadProgress, setUploadProgress] = useState(0)
-    const [uploadResponse, setUploadResponse] = useState(null)
-
+    const [uploadProgressList, setUploadProgressList] = useState([])
     const [toUploadList, setToUploadList] = useState([])
     const [uploadedList, setUploadedList] = useState([])
-
     const [uploadFileCount, setUploadFileCount] = useState(0)
 
     useEffect(() => {
@@ -42,31 +40,36 @@ export default () => {
                 files: []
             }])
         })
-        // socket.current.on('upload progress', data => setUploadProgress(data.progress))
-        // socket.current.on('upload success', data => setUploadResponse(data))
-
     }, [])
 
+    // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
+    useEffect(() => {
+        socket.current.on('upload progress', data => setUploadProgressList(list => {
+            if (!list.find(e => e.file_uid === data.file_uid)) {
+                return [...list, data]
+            }
+            return list.map(e => e.file_uid === data.file_uid ? data : e)
+        }))
+    }, []);
+
+    // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
     useEffect(() => {
         socket.current.on('upload-success', (data) => {
-            console.log("TCL: upload-success", data.files_count)
             setUploadFileCount(data.files_count)
             socket.current.emit('request-file', data)
         })
     }, []);
 
+    // LISTEN ON EVENT FROM SERVER --> STREAM FILES FROM SERVER
     useEffect(() => {
-        console.log('UPLOADED LIST --->', uploadedList)
         socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
             setNewMessage(data.message)
             let parts = []
             stream.on('data', (chunk) => {
-                console.log('data', chunk)
                 parts = [...parts, chunk]
             })
 
             stream.on('end', () => {
-                console.log('end', data.file_name)
                 setUploadedList(list => [...list, {
                     file_url: parseImage(parts),
                     file_name: data.file_name,
@@ -77,23 +80,13 @@ export default () => {
         })
     }, []);
 
+    // WHEN ALL THE FILES ARE ALREADY RETTURNED FROM SERVER
     useEffect(() => {
-        console.log('uploadFileCount -->', uploadFileCount)
-    }, [uploadFileCount]);
-
-    useEffect(() => {
-        console.log('-------------------------------------------------------')
-        console.log('POPULATE MESSAGE LIST 1111111')
-        console.log('uploadedList.length -->', uploadedList.length, uploadedList)
-        console.log('toUploadList.length -->', toUploadList.length)
-        console.log('NUMBER OF FILES UPLOADED', uploadFileCount)
-        console.log('-------------------------------------------------------')
         if (uploadedList.length && uploadedList.length === toUploadList.length) {
             setMessageList(list => [...list, {
                 ...newMessage,
                 files: uploadedList
             }])
-
             return clearFieldValues()
         }
         if (uploadedList.length && !toUploadList.length && uploadedList.length === uploadFileCount) {
@@ -101,7 +94,6 @@ export default () => {
                 ...newMessage,
                 files: uploadedList
             }])
-
             return clearFieldValues()
         }
     }, [uploadedList])
@@ -113,17 +105,18 @@ export default () => {
 
 
     const clearFieldValues = () => {
-        setFieldValues(fieldValues => ({
+        setFieldValues(fieldValues => ({    // CLEAR MESSAGE FIELD
             ...fieldValues,
             message: '',
         }))
-        setNewMessage({
+        setNewMessage({                     // CLEAR NEW MESSAGE RECEIVER VARIABLE
             user: '',
             message: ''
         })
-        setFileList([])
-        setToUploadList([])
-        setUploadedList([])
+        setFileList([])                     // CLEAR LIST OF FILES PREVIEW
+        setToUploadList([])                 // CLEAR LIST OF FILES TO BE UPLOADED
+        setUploadedList([])                 // CLEAR LIST OF UPLOADED FILES
+        setUploadProgressList([])           // CLEAR UPLOAD PROGRESS
     }
 
     const handleSetSocketID = (id) => {
@@ -136,8 +129,6 @@ export default () => {
     }
 
     const handleFileChange = (data) => {
-        console.log("handleFileChange", data)
-
         const newFile = {
             ...data,
             status: 'done',
@@ -157,7 +148,7 @@ export default () => {
     }
 
     const handleSend = () => {
-        if (!toUploadList.length && fieldValues.user.trim() === '' && fieldValues.message.trim() === '') {
+        if (!toUploadList.lengtfsh && fieldValues.user.trim() === '' && fieldValues.message.trim() === '') {
             return message.error('USER AND MESSAGE FIELD IS REQUIRED')
         }
 
@@ -194,10 +185,32 @@ export default () => {
         // fileInfo,
         fieldValues,
         messageList,
-        uploadProgress,
+        uploadProgressList,
         handleInputChange,
         handleSend,
         handleFileChange,
         handleRemoveFile
     }
+}
+
+
+
+{
+    id: 1
+    percentage: 20
+}
+
+{
+    id: 2
+    percentage: 20
+}
+
+{
+    id: 1
+    percentage: 30
+}
+
+{
+    id: 3
+    percentage: 14
 }

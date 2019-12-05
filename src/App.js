@@ -16,7 +16,7 @@ export default () => {
         fileInfo,
         fieldValues,
         messageList,
-        uploadProgress,
+        uploadProgressList,
         handleInputChange,
         handleSend,
         handleFileChange,
@@ -47,7 +47,7 @@ export default () => {
                             fileInfo={fileInfo}
                             handleFileChange={handleFileChange}
                             handleRemoveFile={handleRemoveFile}
-                            uploadProgress={uploadProgress}
+                            uploadProgress={uploadProgressList}
                         />
                     </Segment>
                     <Segment
