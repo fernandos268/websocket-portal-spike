@@ -192,25 +192,3 @@ export default () => {
         handleRemoveFile
     }
 }
-
-
-
-{
-    id: 1
-    percentage: 20
-}
-
-{
-    id: 2
-    percentage: 20
-}
-
-{
-    id: 1
-    percentage: 30
-}
-
-{
-    id: 3
-    percentage: 14
-}
