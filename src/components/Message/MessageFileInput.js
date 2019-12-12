@@ -58,8 +58,6 @@ export default (props) => {
 
     const draggerProps = {
         fileList,
-        processData: false,
-        processData: false,
         listType: "picture-card",
         showUploadList: false,
         accept: '.png, .jpg, .jpeg',
@@ -108,8 +106,6 @@ export default (props) => {
                         src={file.url}
                     />
                     {
-
-
                         (file.uid === progress.file_uid && parseInt(progress.percent) > 0) &&
                         <Segment basic>
                             <Progress

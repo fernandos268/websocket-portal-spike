@@ -1,5 +1,8 @@
 import React from 'react'
 
+import gql from 'graphql-tag'
+import { useQuery } from '@apollo/react-hooks'
+
 import { Grid, Cell } from 'react-md'
 import { Card, Icon, Segment, Image } from 'semantic-ui-react'
 
@@ -9,7 +12,16 @@ import MessageFileInput from './components/Message/MessageFileInput'
 
 import useHooks from './components/Message/useHooks'
 
-export default () => {
+const ALLMESSAGES = gql`
+query {
+    allMessages{
+        id
+        text
+        isFavorite
+    }
+}`
+
+const App = () => {
     const {
         fileList,
         isLoading,
@@ -22,6 +34,10 @@ export default () => {
         handleFileChange,
         handleRemoveFile
     } = useHooks()
+
+    // const { loading, data } = useQuery(ALLMESSAGES)
+// 
+    // console.log('USE QUERY HOOK', { loading, data })
 
     return (
         <Grid
@@ -65,3 +81,5 @@ export default () => {
         </Grid>
     )
 }
+
+export default App

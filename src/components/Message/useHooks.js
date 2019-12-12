@@ -7,6 +7,9 @@ import axios from 'axios'
 import { message } from 'antd'
 import { Number } from 'core-js';
 
+import { useMutation } from '@apollo/react-hooks';
+import gql from 'graphql-tag'
+
 const urlCreator = window.URL || window.webkitURL
 
 export default () => {
@@ -30,73 +33,89 @@ export default () => {
     const [uploadedList, setUploadedList] = useState([])
     const [uploadFileCount, setUploadFileCount] = useState(0)
 
-    useEffect(() => {
-        socket.current = socketIO('http://localhost:4040')
-        socket.current.on('connected', socket_id => handleSetSocketID(socket_id))
-        socket.current.on('new message', data => {
-            setNewMessage(data)
-            setMessageList(list => [...list, {
-                ...data,
-                files: []
-            }])
-        })
-    }, [])
+
+    // GRAPHQL MUTATION
+    const CREATE_MESSAGE = gql`
+        mutation createMessage($text: String!) {
+            createMessage(text: $text) {
+                id
+                text
+                isFavorite
+            }
+        }
+    `
+
+    const [createMessage, { data }] = useMutation(CREATE_MESSAGE)
+
+
+    // useEffect(() => {
+    //     socket.current = socketIO('http://localhost:4040')
+    //     socket.current.on('connected', socket_id => handleSetSocketID(socket_id))
+    //     socket.current.on('new message', data => {
+    //         console.log('new messge', data)
+    //         setNewMessage(data)
+    //         setMessageList(list => [...list, {
+    //             ...data,
+    //             files: []
+    //         }])
+    //     })
+    // }, [])
 
     // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
-    useEffect(() => {
-        socket.current.on('upload progress', data => setUploadProgressList(list => {
-            if (!list.find(e => e.file_uid === data.file_uid)) {
-                return [...list, data]
-            }
-            return list.map(e => e.file_uid === data.file_uid ? data : e)
-        }))
-    }, []);
+    // useEffect(() => {
+    //     socket.current.on('upload progress', data => setUploadProgressList(list => {
+    //         if (!list.find(e => e.file_uid === data.file_uid)) {
+    //             return [...list, data]
+    //         }
+    //         return list.map(e => e.file_uid === data.file_uid ? data : e)
+    //     }))
+    // }, []);
 
-    // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
-    useEffect(() => {
-        socket.current.on('upload-success', (data) => {
-            setUploadFileCount(data.files_count)
-            socket.current.emit('request-file', data)
-        })
-    }, []);
+    // // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
+    // useEffect(() => {
+    //     socket.current.on('upload-success', (data) => {
+    //         setUploadFileCount(data.files_count)
+    //         socket.current.emit('request-file', data)
+    //     })
+    // }, []);
 
-    // LISTEN ON EVENT FROM SERVER --> STREAM FILES FROM SERVER
-    useEffect(() => {
-        socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
-            setNewMessage(data.message)
-            let parts = []
-            stream.on('data', (chunk) => {
-                parts = [...parts, chunk]
-            })
+    // // LISTEN ON EVENT FROM SERVER --> STREAM FILES FROM SERVER
+    // useEffect(() => {
+    //     socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
+    //         setNewMessage(data.message)
+    //         let parts = []
+    //         stream.on('data', (chunk) => {
+    //             parts = [...parts, chunk]
+    //         })
 
-            stream.on('end', () => {
-                setUploadedList(list => [...list, {
-                    file_url: parseImage(parts),
-                    file_name: data.file_name,
-                    file_uid: data.file_uid
-                }])
-                setNewMessage(data.message)
-            })
-        })
-    }, []);
+    //         stream.on('end', () => {
+    //             setUploadedList(list => [...list, {
+    //                 file_url: parseImage(parts),
+    //                 file_name: data.file_name,
+    //                 file_uid: data.file_uid
+    //             }])
+    //             // setNewMessage(data.message)
+    //         })
+    //     })
+    // }, []);
 
-    // WHEN ALL THE FILES ARE ALREADY RETTURNED FROM SERVER
-    useEffect(() => {
-        if (uploadedList.length && uploadedList.length === toUploadList.length) {
-            setMessageList(list => [...list, {
-                ...newMessage,
-                files: uploadedList
-            }])
-            return clearFieldValues()
-        }
-        if (uploadedList.length && !toUploadList.length && uploadedList.length === uploadFileCount) {
-            setMessageList(list => [...list, {
-                ...newMessage,
-                files: uploadedList
-            }])
-            return clearFieldValues()
-        }
-    }, [uploadedList])
+    // // WHEN ALL THE FILES ARE ALREADY RETTURNED FROM SERVER
+    // useEffect(() => {
+    //     if (uploadedList.length && uploadedList.length === toUploadList.length) {
+    //         setMessageList(list => [...list, {
+    //             ...newMessage,
+    //             files: uploadedList
+    //         }])
+    //         return clearFieldValues()
+    //     }
+    //     if (uploadedList.length && !toUploadList.length && uploadedList.length === uploadFileCount) {
+    //         setMessageList(list => [...list, {
+    //             ...newMessage,
+    //             files: uploadedList
+    //         }])
+    //         return clearFieldValues()
+    //     }
+    // }, [uploadedList])
 
     const parseImage = (parts) => {
         const blob = new Blob([...parts]);
@@ -148,35 +167,49 @@ export default () => {
     }
 
     const handleSend = () => {
-        if (!toUploadList.lengtfsh && fieldValues.user.trim() === '' && fieldValues.message.trim() === '') {
-            return message.error('USER AND MESSAGE FIELD IS REQUIRED')
-        }
+        // if (!toUploadList.lengtfsh && fieldValues.user.trim() === '' && fieldValues.message.trim() === '') {
+        //     return message.error('USER AND MESSAGE FIELD IS REQUIRED')
+        // }
 
-        if (toUploadList.length && (validator.isEmpty(fieldValues.user) && validator.isEmpty(fieldValues.message))) {
-            return message.error('USER AND MESSAGE FIELD IS REQUIRED')
-        }
+        // if (toUploadList.length && (validator.isEmpty(fieldValues.user) && validator.isEmpty(fieldValues.message))) {
+        //     return message.error('USER AND MESSAGE FIELD IS REQUIRED')
+        // }
 
-        if (!toUploadList.length) {
-            socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
-        }
-        if (toUploadList.length) {
-            return toUploadList.forEach(file => {
-                const file_name = `${fieldValues.user}-${file.uid}--${file.name}`
-                const stream = socketIOStream.createStream()
-                socketIOStream(socket.current).emit('file upload', stream, {
-                    fileInfo: file,
-                    size: file.size,
-                    file_name,
-                    message: {
-                        ...fieldValues,
-                        socket_id: socketId
-                    },
-                    files_count: toUploadList.length
-                })
-                const blobstream = socketIOStream.createBlobReadStream(file)
-                blobstream.pipe(stream)
-            })
-        }
+        // if (!toUploadList.length) {
+        //     socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
+        // }
+        // if (toUploadList.length) {
+        //     return toUploadList.forEach(file => {
+        //         const file_name = `${fieldValues.user}-${file.uid}--${file.name}`
+        //         const stream = socketIOStream.createStream()
+        //         socketIOStream(socket.current).emit('file upload', stream, {
+        //             fileInfo: file,
+        //             size: file.size,
+        //             file_name,
+        //             message: {
+        //                 ...fieldValues,
+        //                 socket_id: socketId
+        //             },
+        //             files_count: toUploadList.length
+        //         })
+        //         const blobstream = socketIOStream.createBlobReadStream(file)
+        //         blobstream.pipe(stream)
+        //     })
+        // }
+
+        // TEST EMITTING AN EVENT TO SEND MESSAGE IN KAFKA
+        // const kafka_message = {
+        // topic: 'chat-messages',
+        // partition: 0,
+        // messages: ['CHEERS TO THE ONES DAWIDA']
+        // }
+
+        // socket.current.emit('kafka message', { message: kafka_message, user: 'fern' })
+
+
+
+
+        createMessage({ variables: { text: 'REQUESTED VIA SOCKET' } })
     }
 
     return {
