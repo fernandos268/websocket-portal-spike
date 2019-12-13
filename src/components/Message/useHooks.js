@@ -5,9 +5,8 @@ import validator from 'validator'
 import uuid from 'uuidv4';
 import axios from 'axios'
 import { message } from 'antd'
-import { Number } from 'core-js';
 
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useSubscription } from '@apollo/react-hooks';
 import gql from 'graphql-tag'
 
 const urlCreator = window.URL || window.webkitURL
@@ -45,8 +44,20 @@ export default () => {
         }
     `
 
-    const [createMessage, { data }] = useMutation(CREATE_MESSAGE)
+    const ADD_PHOTO = gql`
+        mutation addPhotoMutation ($file: Upload!, $description: String) {
+            addPhoto(file: $file, description: $description) {
+                id
+                fileName
+                fileLocation
+                description
+            }
+        }
+    `
 
+    // const [createMessage, { data }] = useMutation(CREATE_MESSAGE)
+    const [addPhoto, { data, loading }] = useMutation(ADD_PHOTO)
+    console.log('ADD PHOTO MUTATION', { data, loading })
 
     // useEffect(() => {
     //     socket.current = socketIO('http://localhost:4040')
@@ -166,7 +177,7 @@ export default () => {
         setToUploadList(list => [...list].filter(file => file.uid !== fileToRemove.uid))
     }
 
-    const handleSend = () => {
+    const handleSend = async () => {
         // if (!toUploadList.lengtfsh && fieldValues.user.trim() === '' && fieldValues.message.trim() === '') {
         //     return message.error('USER AND MESSAGE FIELD IS REQUIRED')
         // }
@@ -207,9 +218,20 @@ export default () => {
         // socket.current.emit('kafka message', { message: kafka_message, user: 'fern' })
 
 
+        // const text = 'DOLO IPSUM AMET'
+        // createMessage({ variables: { text } })
+
+        if (toUploadList.length > 0) {
+            const file = toUploadList[0]
+            await addPhoto({
+                variables: {
+                    file,
+                    description: 'FIRST PHOTO'
+                }
+            })
+        }
 
 
-        createMessage({ variables: { text: 'REQUESTED VIA SOCKET' } })
     }
 
     return {
