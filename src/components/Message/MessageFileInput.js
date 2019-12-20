@@ -79,9 +79,10 @@ export default (props) => {
         return list.map(file => {
             const progress = uploadProgress.find(progress => progress.file_uid === file.uid) || {}
             return (
-                <Card>
+                <Card key={file.uid}>
                     <Dimmer.Dimmable
                         as={Image}
+                        fluid
                         dimmed={file.uid === isDimmed.target ? isDimmed.dimmed : false}
                         dimmer={{
                             active: file.uid === isDimmed.target ? isDimmed.dimmed : false,
@@ -102,7 +103,6 @@ export default (props) => {
                             target: file.uid,
                             dimmed: false
                         })}
-                        size='small'
                         src={file.url}
                     />
                     {

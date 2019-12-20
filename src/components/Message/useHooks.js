@@ -32,32 +32,40 @@ export default () => {
     const [uploadedList, setUploadedList] = useState([])
     const [uploadFileCount, setUploadFileCount] = useState(0)
 
-
     // GRAPHQL MUTATION
+    const CREATE_MESSAGE_FRAGMENT = gql`
+        fragment MesssageFields on Message {
+            id
+            text
+            isFavorite
+        }
+    `
+
     const CREATE_MESSAGE = gql`
         mutation createMessage($text: String!) {
             createMessage(text: $text) {
-                id
-                text
-                isFavorite
+                ...MesssageFields
             }
         }
+        ${CREATE_MESSAGE_FRAGMENT}
     `
 
-    const ADD_PHOTO = gql`
-        mutation addPhotoMutation ($file: Upload!, $description: String) {
-            addPhoto(file: $file, description: $description) {
-                id
-                fileName
-                fileLocation
-                description
-            }
-        }
-    `
+    const [createMessage, { data, loading }] = useMutation(CREATE_MESSAGE)
+    console.log('CREATE MESSAGE', { data, loading })
 
-    // const [createMessage, { data }] = useMutation(CREATE_MESSAGE)
-    const [addPhoto, { data, loading }] = useMutation(ADD_PHOTO)
-    console.log('ADD PHOTO MUTATION', { data, loading })
+
+    // const ADD_PHOTO = gql`
+    //     mutation addPhoto ($file: Upload!, $description: String) {
+    //         addPhoto(file: $file, description: $description) {
+    //             id
+    //             fileName
+    //             fileLocation
+    //             description
+    //         }
+    //     }
+    // `
+    // const [addPhoto, { data, loading }] = useMutation(ADD_PHOTO)
+    // console.log('ADD PHOTO', { data, loading })
 
     // useEffect(() => {
     //     socket.current = socketIO('http://localhost:4040')
@@ -218,18 +226,21 @@ export default () => {
         // socket.current.emit('kafka message', { message: kafka_message, user: 'fern' })
 
 
-        // const text = 'DOLO IPSUM AMET'
-        // createMessage({ variables: { text } })
+        // --------------------------------------------------------------------------------------------------------------------
+        // GRAPHQL
 
-        if (toUploadList.length > 0) {
-            const file = toUploadList[0]
-            await addPhoto({
-                variables: {
-                    file,
-                    description: 'FIRST PHOTO'
-                }
-            })
-        }
+        const text = 'Cheers to da wans dawida'
+        createMessage({ variables: { text } })
+
+        // if (toUploadList.length > 0) {
+        //     const file = toUploadList[0]
+        //     await addPhoto({
+        //         variables: {
+        //             file,
+        //             description: 'CHEERS TO THE WANS DAWIDA'
+        //         }
+        //     })
+        // }
 
 
     }
