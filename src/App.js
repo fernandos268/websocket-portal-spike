@@ -12,14 +12,6 @@ import MessageFileInput from './components/Message/MessageFileInput'
 
 import useHooks from './components/Message/useHooks'
 
-const ALLMESSAGES = gql`
-query {
-    allMessages{
-        id
-        text
-        isFavorite
-    }
-}`
 
 const App = () => {
     const {
@@ -35,9 +27,6 @@ const App = () => {
         handleRemoveFile
     } = useHooks()
 
-    // const { loading, data } = useQuery(ALLMESSAGES)
-// 
-    // console.log('USE QUERY HOOK', { loading, data })
 
     return (
         <Grid

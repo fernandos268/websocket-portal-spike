@@ -6,7 +6,7 @@ import uuid from 'uuidv4';
 import axios from 'axios'
 import { message } from 'antd'
 
-import { useMutation, useSubscription } from '@apollo/react-hooks';
+import { useMutation, useSubscription } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
 
 const urlCreator = window.URL || window.webkitURL

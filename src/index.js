@@ -10,7 +10,9 @@ import { createHttpLink } from 'apollo-link-http'
 import { concat, from, ApolloLink } from 'apollo-link'
 import { WebSocketLink } from 'apollo-link-ws'
 import { setContext } from 'apollo-link-context'
+
 import App from './App'
+import Signin from './components/Signin' 
 
 import socketIO from 'socket.io-client'
 import socketIOStream from 'socket.io-stream'
@@ -60,6 +62,6 @@ const apolloClient = new ApolloClient({
 
 ReactDOM.render(
     <ApolloProvider client={apolloClient}>
-        <App />
+        <Signin />
     </ApolloProvider>
     , document.getElementById('root'))
