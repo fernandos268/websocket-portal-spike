@@ -26,7 +26,7 @@ const initialState = {
 
 export default () => {
     const [fieldValues, handleInputChange] = useFieldValues(initialState)
-    const { handleSubmit, handleVewProfile } = eventHandlers()
+    const { handleSubmit, handleCreateMessage } = eventHandlers()
 
     return (
         <Grid
@@ -54,7 +54,7 @@ export default () => {
                                 <a
                                     style={{ size: '24' }}
                                     name="signin"
-                                    onClick={() => { }}
+                                    onClick={handleCreateMessage}
                                 >
                                     Forgot Password?
                             </a>
@@ -65,7 +65,7 @@ export default () => {
                             <Form
                                 fieldValues={fieldValues}
                                 handleInputChange={handleInputChange}
-                                handleSubmit={handleVewProfile}
+                                handleSubmit={handleSubmit}
                             />
                         </Spin>
                     </Card>

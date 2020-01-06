@@ -12,7 +12,7 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { setContext } from 'apollo-link-context'
 
 import App from './App'
-import Signin from './components/Signin' 
+import Signin from './components/Signin'
 
 import socketIO from 'socket.io-client'
 import socketIOStream from 'socket.io-stream'
@@ -24,11 +24,11 @@ import 'antd/dist/antd.css'
 const httpLink = createHttpLink({ uri: 'http://localhost:5050/graphql' })
 
 const wsLink = new WebSocketLink({
-    uri: `ws://localhost:5050/graphql`,
+    uri: 'ws://localhost:5050/graphql',
     options: {
         reconnect: true,
         connectionParams: {
-            auth: 'TOTO BENE --> Connection Params'
+            // auth: 'TOTO BENE --> Connection Params'
         },
         // lazy: true
     }
@@ -36,12 +36,13 @@ const wsLink = new WebSocketLink({
 
 const subscriptionMiddleware = {
     applyMiddleware: function (options, next) {
+        console.log('subscriptionMiddleware', { options, next })
         options.auth = 'TOTO BENE --> Context in middleware'
         next()
     }
 }
 
-wsLink.subscriptionClient.use([subscriptionMiddleware]);
+// wsLink.subscriptionClient.use([subscriptionMiddleware]);
 
 const uploadLink = new createUploadLink({ uri: `http://localhost:5050/graphql` })
 
@@ -57,7 +58,8 @@ const link = from([
 
 const apolloClient = new ApolloClient({
     link,
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    credentials: 'include'
 });
 
 ReactDOM.render(

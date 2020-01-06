@@ -24,20 +24,33 @@ const VIEW_PROFILE = gql`
     }
 `
 
+const CREATE_MESSAGE_FRAGMENT = gql`
+    fragment MesssageFields on Message {
+        id
+        text
+        isFavorite
+    }
+`
+
+const CREATE_MESSAGE = gql`
+    mutation createMessage($input: CreateMessageInput!) {
+        createMessage(input: $input) {
+            ...MesssageFields
+        }
+    }
+    ${CREATE_MESSAGE_FRAGMENT}
+`
+
 
 export default () => {
     const [signin, { data, loading, error }] = useMutation(SIGNIN)
-    const [viewProfile, { data : vp_data, loading : vp_loading,error: error_error }] = useMutation(VIEW_PROFILE)
-    console.log('viewProfile', { vp_data, vp_loading, error_error })
+
+    const [createMessage, { data: cm_data, loading: cm_loading, error: cm_error }] = useMutation(CREATE_MESSAGE)
+    console.log('signin', { data, loading, error })
+    console.log('CREATE MESSAGE', { cm_data, cm_loading, cm_error })
 
     const handleSubmit = (event, fieldValues) => {
         event.preventDefault()
-        // ConstructQuery({
-        //     query_name: 'allMessages',
-        //     fields: ['id','text','isFavorite']
-        // })
-
-        console.log('handleSubmit', fieldValues)
         signin({
             variables: {
                 ...fieldValues
@@ -46,12 +59,19 @@ export default () => {
 
     }
 
-    const handleVewProfile = () => {
-        viewProfile()
+    const handleCreateMessage = () => {
+        const text = 'Cheers to da wans dawida'
+        createMessage({
+            variables: {
+                input: {
+                    text
+                }
+            }
+        })
     }
 
     return {
         handleSubmit,
-        handleVewProfile
+        handleCreateMessage
     }
 }
