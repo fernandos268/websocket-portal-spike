@@ -156,27 +156,31 @@ export default () => {
             return message.error('USER AND MESSAGE FIELD IS REQUIRED')
         }
 
-        if (!toUploadList.length) {
-            socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
-        }
-        if (toUploadList.length) {
-            return toUploadList.forEach(file => {
-                const file_name = `${fieldValues.user}-${file.uid}--${file.name}`
-                const stream = socketIOStream.createStream()
-                socketIOStream(socket.current).emit('file upload', stream, {
-                    fileInfo: file,
-                    size: file.size,
-                    file_name,
-                    message: {
-                        ...fieldValues,
-                        socket_id: socketId
-                    },
-                    files_count: toUploadList.length
-                })
-                const blobstream = socketIOStream.createBlobReadStream(file)
-                blobstream.pipe(stream)
-            })
-        }
+        const kafka_message = { topic: 'tweets', messages: fieldValues.message}
+        socket.current.emit('kafka message', { kafka_message, socket_id: socketId })
+
+        // if (!toUploadList.length) {
+        //     socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
+        // }
+
+        // if (toUploadList.length) {
+        //     return toUploadList.forEach(file => {
+        //         const file_name = `${fieldValues.user}-${file.uid}--${file.name}`
+        //         const stream = socketIOStream.createStream()
+        //         socketIOStream(socket.current).emit('file upload', stream, {
+        //             fileInfo: file,
+        //             size: file.size,
+        //             file_name,
+        //             message: {
+        //                 ...fieldValues,
+        //                 socket_id: socketId
+        //             },
+        //             files_count: toUploadList.length
+        //         })
+        //         const blobstream = socketIOStream.createBlobReadStream(file)
+        //         blobstream.pipe(stream)
+        //     })
+        // }
     }
 
     return {
