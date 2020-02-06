@@ -18,27 +18,39 @@ export default (props) => {
 
     return (
         <Form size='small' style={{ width: '100%', height: '20%', maxHeight: '20%' }} onSubmit={handleSend}>
-            <Form.Group widths='equal'>
-                <Form.Field>
-                    <Input
-                        icon='user circle'
-                        iconPosition='left'
-                        value={fieldValues.user}
-                        onChange={e => handleInputChange(e.target.value, 'user')}
-                        placeholder='Enter your name here.'
-                    />
-                </Form.Field>
-            </Form.Group>
             <Form.Field>
-                <Input type='text' placeholder='Enter message here...' action>
-                    <input
-                        value={fieldValues.message}
-                        onChange={e => handleInputChange(e.target.value, 'message')}
-                    />
-                    <Button color='blue' type='submit' disabled={isLoading}>
-                        <Icon name='paper plane' /> Send
-                    </Button>
-                </Input>
+                <label>Recipient:</label>
+                <Input
+                    icon='user circle'
+                    iconPosition='left'
+                    value={fieldValues.user}
+                    onChange={e => handleInputChange(e.target.value, 'recipient')}
+                    placeholder='Recipient email: <recipient@email.com>'
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Subject:</label>
+                <Input
+                    icon='user circle'
+                    iconPosition='left'
+                    value={fieldValues.user}
+                    onChange={e => handleInputChange(e.target.value, 'subject')}
+                    placeholder='Enter name of subject here...'
+                />
+            </Form.Field>
+            <Form.Field>
+                <label>Body: </label>
+                <TextArea
+                    rows={8}
+                    placeholder='Enter body of the message here ...'
+                    value={fieldValues.body}
+                    onChange={e => handleInputChange(e.target.value, 'body')}
+                />
+            </Form.Field>
+            <Form.Field>
+                <Button color='blue' type='submit' disabled={isLoading}>
+                    <Icon name='paper plane' /> Send
+                </Button>
             </Form.Field>
         </Form>
     )

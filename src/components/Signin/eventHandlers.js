@@ -1,53 +1,45 @@
-import ConstructQuery from '../Graphql/Base/Queries'
+// import ConstructQuery from '../../Graphql/Base/Queries'
+import React, { useEffect } from 'react'
+import Cookies from 'js-cookie'
 import gql from 'graphql-tag'
 import { useMutation, useQuery } from '@apollo/react-hooks';
+
+import Actions from '../../Redux/Actions'
+const {
+    SetAuthToken,
+    SetUser
+} = Actions
 
 
 const SIGNIN = gql`
     mutation signin($email: String!, $password: String!) {
         signin(email: $email, password: $password) {
-            id,
-            email,
-            firstName,
-            lastName
-        }
-    }
-`
-const VIEW_PROFILE = gql`
-    query {
-        me{
-            id
-            email
-            firstName
-            lastName
+            isSuccess
+            token
+            user {
+                id
+                email
+                firstName
+                lastName
+            }
         }
     }
 `
 
-const CREATE_MESSAGE_FRAGMENT = gql`
-    fragment MesssageFields on Message {
-        id
-        text
-        isFavorite
-    }
-`
+export default props => {
+    const { dispatch } = props
 
-const CREATE_MESSAGE = gql`
-    mutation createMessage($input: CreateMessageInput!) {
-        createMessage(input: $input) {
-            ...MesssageFields
-        }
-    }
-    ${CREATE_MESSAGE_FRAGMENT}
-`
-
-
-export default () => {
     const [signin, { data, loading, error }] = useMutation(SIGNIN)
 
-    const [createMessage, { data: cm_data, loading: cm_loading, error: cm_error }] = useMutation(CREATE_MESSAGE)
-    console.log('signin', { data, loading, error })
-    console.log('CREATE MESSAGE', { cm_data, cm_loading, cm_error })
+    useEffect(() => {
+        const { isSuccess, token, user } = data ? data.signin ? data.signin : {} : {}
+
+        if (isSuccess) {
+            // dispatch(SetAuthToken({ token, user }))
+            dispatch(SetUser({ user }))
+        }
+    }, [data])
+
 
     const handleSubmit = (event, fieldValues) => {
         event.preventDefault()
@@ -59,19 +51,25 @@ export default () => {
 
     }
 
-    const handleCreateMessage = () => {
-        const text = 'Cheers to da wans dawida'
-        createMessage({
-            variables: {
-                input: {
-                    text
-                }
-            }
-        })
+    const handleRedirectToSignup = (history) => {
+        history.push('/signup')
+    }
+
+    const handleSetCookie = async (history) => {
+        const { token } = data ? data.signin ? data.signin : {} : {}
+        await Cookies.set('emp-pres', token, { expires: 7 })
+        history.replace('/portal/message')
+    }
+
+    const handleGetCookie = () => {
+        const cookie =  Cookies.get('emp-pres')
+        return cookie
     }
 
     return {
         handleSubmit,
-        handleCreateMessage
+        handleRedirectToSignup,
+        handleSetCookie,
+        handleGetCookie
     }
 }

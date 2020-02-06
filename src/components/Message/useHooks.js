@@ -11,20 +11,24 @@ import gql from 'graphql-tag'
 
 const urlCreator = window.URL || window.webkitURL
 
-export default () => {
+export default params => {
+    const { user, newMail } = params
+
     let socket = useRef(null)
 
     const [socketId, setSocketId] = useState('')
     const [fieldValues, setFieldValues] = useState({
-        user: '',
-        message: ''
+        recipient: '',
+        subject: '',
+        body: ''
     })
     const [messageList, setMessageList] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [fileList, setFileList] = useState([])
     const [newMessage, setNewMessage] = useState({
-        user: '',
-        message: ''
+        recipient: '',
+        subject: '',
+        body: ''
     })
 
     const [uploadProgressList, setUploadProgressList] = useState([])
@@ -36,23 +40,86 @@ export default () => {
     const CREATE_MESSAGE_FRAGMENT = gql`
         fragment MesssageFields on Message {
             id
-            text
-            isFavorite
+            sender
+            recipient
+            subject
+            body
         }
     `
 
     const CREATE_MESSAGE = gql`
-        mutation createMessage($text: String!) {
-            createMessage(text: $text) {
-                ...MesssageFields
+        mutation createMessage($input: CreateMessageInput!) {
+            createMessage(input: $input) {
+                status
+                action
+                entity
             }
         }
-        ${CREATE_MESSAGE_FRAGMENT}
     `
+
+    useEffect(() => {
+        if (newMail && newMail.sender === user.user.email) {
+            clearFieldValues()
+        }
+    }, [newMail])
+
+
+    // ${CREATE_MESSAGE_FRAGMENT}
+
+    // const NEW_MESSAGE_SUBSCRIPTION = gql`
+    //     subscription newMessages {
+    //         newMessages {
+    //             id
+    //             sender
+    //             recipient
+    //             subject
+    //             body
+    //         }
+    //     }
+    // `
 
     const [createMessage, { data, loading }] = useMutation(CREATE_MESSAGE)
     console.log('CREATE MESSAGE', { data, loading })
 
+    // const {
+    //     data: message_data,
+    //     error: message_error
+    // } = useSubscription(NEW_MESSAGE_SUBSCRIPTION)
+
+    // console.log('NEW_MESSAGE_SUBSCRIPTION: ', message_data, message_error)
+
+    // console.log('NEW MESSAGE: ', newMessage)
+
+    // useEffect(() => {
+    //     console.log('useEffect 1 --> ', message_data)
+    //     if (message_data && message_data.newMessages) {
+    //         setNewMessage({
+    //             ...message_data.newMessages
+    //         })
+    //     }
+    // }, [message_data])
+
+    // useEffect(() => {
+    //     console.log('useEffect 2 --> ', message_data)
+    //     // if (message_data && (newMessage.id !== message_data.newMessages.id)) {
+    //     //     console.log('useEffect 22 -->  PASOK!!')
+    //     //     setMessageList(list => [...list, {
+    //     //         ...newMessage,
+    //     //         files: []
+    //     //     }])
+    //     // }
+
+    //     if (message_data && message_data.newMessages) {
+    //         setMessageList(list => [...list, {
+    //             ...newMessage,
+    //             files: []
+    //         }])
+    //     }
+
+    // }, [newMessage])
+
+
+    //=================================================================================================================================
 
     // const ADD_PHOTO = gql`
     //     mutation addPhoto ($file: Upload!, $description: String) {
@@ -185,7 +252,7 @@ export default () => {
         setToUploadList(list => [...list].filter(file => file.uid !== fileToRemove.uid))
     }
 
-    const handleSend = async () => {
+    const handleSend = () => {
         // if (!toUploadList.lengtfsh && fieldValues.user.trim() === '' && fieldValues.message.trim() === '') {
         //     return message.error('USER AND MESSAGE FIELD IS REQUIRED')
         // }
@@ -229,8 +296,24 @@ export default () => {
         // --------------------------------------------------------------------------------------------------------------------
         // GRAPHQL
 
-        const text = 'Cheers to da wans dawida'
-        createMessage({ variables: { text } })
+        const {
+            recipient,
+            subject,
+            body
+        } = fieldValues
+
+        createMessage({
+            variables: {
+                input: {
+                    sender: user.email,
+                    senderId: user.id,
+                    recipient,
+                    subject,
+                    body,
+                    topic: 'chat-messages'
+                }
+            }
+        })
 
         // if (toUploadList.length > 0) {
         //     const file = toUploadList[0]
