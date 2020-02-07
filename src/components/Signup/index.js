@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { withRouter } from 'react-router-dom'
+
 import {
     Grid,
     Segment
@@ -38,7 +40,15 @@ const initialErrorText = {
 }
 
 
-export default () => {
+export default withRouter(props => {
+    const {
+        history
+    } = props
+    console.log('SIGNUP -> props', eventHandlers({ history }))
+
+    const {
+        handleCancel
+    } = eventHandlers()
 
     // const isAuthenticated = false
     // if (isAuthenticated) {
@@ -62,11 +72,11 @@ export default () => {
                                 <a
                                     style={{ size: '24' }}
                                     name="signin"
-                                    onClick={() => { }}
+                                    onClick={() => handleCancel(history)}
                                 >
                                     Cancel
                                 </a>
-                            </Row>,
+                            </Row>
                         ]}
                     >
                         <Spin tip="Signing in..." spinning={false}>
@@ -77,4 +87,4 @@ export default () => {
             </Grid.Column>
         </Grid>
     )
-}
+})

@@ -85,7 +85,7 @@ const Signin = withRouter(props => {
                                     name="signin"
                                     onClick={() => handleRedirectToSignup(props.history)}
                                 >
-                                    Sign up here
+                                    Sign up
                                 </a>
                             </Row>,
                             <Row type="flex" justify="center">

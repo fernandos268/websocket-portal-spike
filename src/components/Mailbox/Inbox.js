@@ -12,7 +12,7 @@ import {
 } from 'semantic-ui-react'
 
 import reverse from 'lodash/reverse'
-import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks'
+import { useMutation, useSubscription, useQuery, useLazyQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
 
 const GET_MAILS = gql`
@@ -28,9 +28,18 @@ const GET_MAILS = gql`
         }
     }
 `
+const DELETE_MAIL = gql`
+    mutation deleteMessage($id: String!) {
+        deleteMessage(id: $id) {
+            status
+            action
+            entity
+        }
+    }
+`
 
 export default props => {
-    const { user, newMail } = props
+    const { user, newMail, deletedMail } = props
 
     const [inboxMails, setInboxMails] = useState([])
 
@@ -46,22 +55,47 @@ export default props => {
         }
     })
 
+    const [runQuery, { loading: runQuery_loading, error: runQuery_error, data: runQuery_data }] = useLazyQuery(GET_MAILS)
+
+    const [deleteMessage, { data: del_data, loading: del_loading, error: del_error }] = useMutation(DELETE_MAIL)
+
     useEffect(() => {
         const isRecipientMail = newMail && newMail.recipient === user.user.email
-
         if (newMail && isRecipientMail) {
             setInboxMails(list => [...list, newMail])
         }
     }, [newMail])
 
+    useEffect(() => {
+        if (deletedMail) {
+            console.log('RE TRIGGER THE QUERY', deletedMail)
+            runQuery({
+                variables: {
+                    input: {
+                        entity: 'Message',
+                        request_origin: user.user.id,
+                        topic: 'request-sent-items',
+                        filter_fields: ['sender'],
+                        filter_values: [user.user.email]
+                    }
+                }
+            })
+        }
+    }, [deletedMail])
 
     useEffect(() => {
-        console.log('INBOX MAILS LIST RESULT', data)
         if (data) {
+            console.log('INBOX MAILS LIST RESULT ==> data', data)
             setInboxMails([...data.GetMails])
         }
-
     }, [data])
+
+    useEffect(() => {
+        if (runQuery_data) {
+            console.log('INBOX MAILS LIST RESULT ==> runQuery_data', data)
+            setInboxMails([...runQuery_data.GetMails])
+        }
+    }, [runQuery_data])
 
     return (
         <Card fluid raised color='green'>
@@ -83,7 +117,19 @@ export default props => {
                                             <Popup
                                                 position='top right'
                                                 content='Delete'
-                                                trigger={<Button icon='trash' circular color='red' inverted />}
+                                                trigger={
+                                                    <Button
+                                                        icon='trash'
+                                                        color='red'
+                                                        inverted
+                                                        circular
+                                                        onClick={() => deleteMessage({
+                                                            variables: {
+                                                                id: e.id
+                                                            }
+                                                        })}
+                                                    />
+                                                }
                                             />
                                         </Segment>
                                     </Item.Extra>

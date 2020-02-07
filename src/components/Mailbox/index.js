@@ -28,7 +28,8 @@ const Mailbox = props => {
     const { user } = props
 
     const {
-        newMail
+        newMail,
+        deletedMail
     } = useHooks(user)
 
     console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
@@ -54,12 +55,20 @@ const Mailbox = props => {
                                     <Grid columns={1}>
                                         <Grid.Row>
                                             <Grid.Column>
-                                                <Inbox newMail={newMail} user={user} />
+                                                <Inbox
+                                                    newMail={newMail}
+                                                    deletedMail={deletedMail}
+                                                    user={user}
+                                                />
                                             </Grid.Column>
                                         </Grid.Row>
                                         <Grid.Row>
                                             <Grid.Column>
-                                                <SentBox newMail={newMail} user={user} />
+                                                <SentBox
+                                                    newMail={newMail}
+                                                    deletedMail={deletedMail}
+                                                    user={user}
+                                                />
                                             </Grid.Column>
                                         </Grid.Row>
                                     </Grid>

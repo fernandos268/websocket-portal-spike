@@ -12,10 +12,10 @@ import {
 } from 'semantic-ui-react'
 
 import reverse from 'lodash/reverse'
-import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks'
+import { useMutation, useSubscription, useQuery, useLazyQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
 
-
+import { withApollo } from 'react-apollo'
 
 const GET_MAILS = gql`
     query GetMails ($input: QueryMailsInput!) {
@@ -31,11 +31,19 @@ const GET_MAILS = gql`
     }
 `
 
-export default props => {
-    const { user, newMail } = props
+const DELETE_MAIL = gql`
+    mutation deleteMessage($id: String!) {
+        deleteMessage(id: $id) {
+            status
+            action
+            entity
+        }
+    }
+`
 
-    console.log('#######################################################################33')
-    console.log({ newMail })
+export default props => {
+    console.log('SentBox --> props: ', props);
+    const { user, newMail, deletedMail } = props
 
     const [sentMails, setSentMails] = useState([])
 
@@ -51,25 +59,48 @@ export default props => {
         }
     })
 
-    useEffect(() => {
-        console.log('SENTBOX => useEffect 2 --> ', newMail)
-        const isSenderMail = newMail && newMail.sender === user.user.email
+    const [runQuery, { loading: runQuery_loading, error: runQuery_error, data: runQuery_data }] = useLazyQuery(GET_MAILS)
 
-        const isExist = sentMails.find(e => e.id === newMail.id)
+    const [deleteMessage, { data: del_data, loading: del_loading, error: del_error }] = useMutation(DELETE_MAIL)
+
+    useEffect(() => {
+        const isSenderMail = newMail && newMail.sender === user.user.email
         if (isSenderMail) {
             setSentMails(list => [...list, newMail])
         }
 
     }, [newMail])
 
+    useEffect(() => {
+        if (deletedMail) {
+            console.log('RE TRIGGER THE QUERY', deletedMail)
+            runQuery({
+                variables: {
+                    input: {
+                        entity: 'Message',
+                        request_origin: user.user.id,
+                        topic: 'request-sent-items',
+                        filter_fields: ['sender'],
+                        filter_values: [user.user.email]
+                    }
+                }
+            })
+        }
+    }, [deletedMail])
 
     useEffect(() => {
-        console.log('SENTBOX MAILS LIST RESULT', data)
         if (data) {
+            console.log('SENTBOX MAILS LIST RESULT ==> data', data)
             setSentMails([...data.GetMails])
         }
     }, [data])
 
+    useEffect(() => {
+        if (runQuery_data) {
+            console.log('SENTBOX MAILS LIST RESULT ==> runQuery_data', data)
+            setSentMails([...runQuery_data.GetMails])
+        }
+    }, [runQuery_data])
 
     return (
         <Card fluid raised color='brown'>
@@ -91,7 +122,19 @@ export default props => {
                                             <Popup
                                                 position='top right'
                                                 content='Delete'
-                                                trigger={<Button icon='trash' circular color='red' inverted />}
+                                                trigger={
+                                                    <Button
+                                                        icon='trash'
+                                                        color='red'
+                                                        inverted
+                                                        circular
+                                                        onClick={() => deleteMessage({
+                                                            variables: {
+                                                                id: e.id
+                                                            }
+                                                        })}
+                                                    />
+                                                }
                                             />
                                         </Segment>
                                     </Item.Extra>

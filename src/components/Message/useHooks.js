@@ -81,6 +81,16 @@ export default params => {
     const [createMessage, { data, loading }] = useMutation(CREATE_MESSAGE)
     console.log('CREATE MESSAGE', { data, loading })
 
+    useEffect(() => {
+        if (data && data.createMessage && data.createMessage.status === 'Create Requested') {
+            setFieldValues({
+                recipient: '',
+                subject: '',
+                body: ''
+            })
+        }
+    }, [data])
+
     // const {
     //     data: message_data,
     //     error: message_error
@@ -285,7 +295,7 @@ export default params => {
 
         // TEST EMITTING AN EVENT TO SEND MESSAGE IN KAFKA
         // const kafka_message = {
-        // topic: 'chat-messages',
+        // topic: 'create-messsage-request',
         // partition: 0,
         // messages: ['CHEERS TO THE ONES DAWIDA']
         // }
@@ -310,7 +320,7 @@ export default params => {
                     recipient,
                     subject,
                     body,
-                    topic: 'chat-messages'
+                    topic: 'create-messsage-request'
                 }
             }
         })

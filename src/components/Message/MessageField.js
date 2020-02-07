@@ -23,7 +23,7 @@ export default (props) => {
                 <Input
                     icon='user circle'
                     iconPosition='left'
-                    value={fieldValues.user}
+                    value={fieldValues.recipient}
                     onChange={e => handleInputChange(e.target.value, 'recipient')}
                     placeholder='Recipient email: <recipient@email.com>'
                 />
@@ -33,7 +33,7 @@ export default (props) => {
                 <Input
                     icon='user circle'
                     iconPosition='left'
-                    value={fieldValues.user}
+                    value={fieldValues.subject}
                     onChange={e => handleInputChange(e.target.value, 'subject')}
                     placeholder='Enter name of subject here...'
                 />

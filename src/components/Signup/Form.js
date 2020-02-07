@@ -77,16 +77,15 @@ export default () => {
     const uploadButton = (
         <div>
             <Icon type='plus' />
-            <div className="ant-upload-text">Upload</div>
+            <div className="ant-upload-text" style={{}}>Photo</div>
         </div>
     )
 
     return (
         <Form onSubmit={event => handleSubmit(event, fieldValues)}>
             <Form.Item
-                help={errorText.first_name}
-                validateStatus={fieldStatus.first_name}
-                label="Photo"
+                help={errorText.photo}
+                validateStatus={fieldStatus.photo}
             >
                 <Grid
                     verticalAlign="middle"

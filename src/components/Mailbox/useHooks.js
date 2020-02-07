@@ -22,20 +22,32 @@ subscription newMessages {
 }
 `
 
+const DELETE_MESSAGE_SUBSCRIPTION = gql`
+subscription deletedMessage {
+    deletedMessage {
+        id
+        sender
+        recipient
+        subject
+        body
+    }
+}
+`
+
 export default (user) => {
 
     const [newMail, setNewEmail] = useState(null)
-
-    useEffect(() => {
-        console.log('newEmail --> useHooks -->', newMail)
-    })
+    const [deletedMail, setDeletedMail] = useState(null)
 
     const {
         data: sub_data,
         error: sub_error
     } = useSubscription(NEW_MESSAGE_SUBSCRIPTION)
 
-    console.log('useSubscription(NEW_MESSAGE_SUBSCRIPTION) =>', sub_data);
+    const {
+        data: del_data,
+        error: del_error
+    } = useSubscription(DELETE_MESSAGE_SUBSCRIPTION)
 
     useEffect(() => {
         if (sub_data) {
@@ -43,12 +55,25 @@ export default (user) => {
         }
     }, [sub_data])
 
+
+    useEffect(() => {
+        if (del_data) {
+            setDeletedMail(del_data.deletedMessage)
+        }
+    }, [del_data])
+
     const handleQueryMails = () => {
+
+    }
+
+    const handleDeleteMail = (id) => {
 
     }
 
     return {
         newMail,
-        handleQueryMails
+        deletedMail,
+        handleQueryMails,
+        handleDeleteMail
     }
 }
