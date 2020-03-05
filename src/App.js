@@ -1,71 +1,50 @@
-import React from 'react'
-
-import gql from 'graphql-tag'
-import { useQuery } from '@apollo/react-hooks'
+import React, { useState } from 'react'
 
 import { Grid, Cell } from 'react-md'
-import { Card, Icon, Segment, Image } from 'semantic-ui-react'
+import {
+    Segment,
+    Input,
+    Popup,
+    Button,
+    Grid as SUI_Grid
+} from 'semantic-ui-react'
 
-import Messages from './components/Message/Messages'
-import MessageField from './components/Message/MessageField'
-import MessageFileInput from './components/Message/MessageFileInput'
 
-import useHooks from './components/Message/useHooks'
+import Photos from './components/Photos'
+import AppHeader from './components/Base/AppHeader'
+import Toolbar from './components/Base/Toolbar'
+import Form from './components/Photos/Form'
 
+const default_params = {
+    limit: 10,
+    page: 1
+}
 
 const App = () => {
-    const {
-        fileList,
-        isLoading,
-        fileInfo,
-        fieldValues,
-        messageList,
-        uploadProgressList,
-        handleInputChange,
-        handleSend,
-        handleFileChange,
-        handleRemoveFile
-    } = useHooks()
 
+    const [filterParams, setFilterParams] = useState(default_params)
+    const [isFormOpen, setIsFormOpen] = useState(false)
 
     return (
         <Grid
             className='md-paper'
             style={{ alignItems: "center", display: "flex", justifyContent: "center", height: '100vh' }}
         >
-            <Cell align='top' size={6} style={{ height: '55vh' }} >
-                <Segment color='blue' raised>
-                    <Segment
-                        vertical
-                        placeholder
-                        style={{ height: '55vh', overflowY: 'hidden' }}
-                    >
-                        <Messages
-                            messageList={messageList}
-                        />
+            <Cell align='top' size={12} style={{ height: '100vh' }} >
+                <Segment.Group raised style={{ height: '95vh' }}>
+                    <Segment>
+                        <AppHeader />
                     </Segment>
-                    <Segment
-                        vertical
-                    >
-                        <MessageFileInput
-                            fileList={fileList}
-                            fileInfo={fileInfo}
-                            handleFileChange={handleFileChange}
-                            handleRemoveFile={handleRemoveFile}
-                            uploadProgress={uploadProgressList}
-                        />
+                    <Segment>
+                        <Segment basic>
+                            <Toolbar setFilterParams={setFilterParams} setIsFormOpen={setIsFormOpen} />
+                        </Segment>
+                        <Segment basic style={{ height: '75vh', overflow: 'hidden' }}>
+                            <Photos filterParams={filterParams} />
+                        </Segment>
                     </Segment>
-                    <Segment
-                        vertical
-                    >
-                        <MessageField
-                            fieldValues={fieldValues}
-                            handleInputChange={handleInputChange}
-                            handleSend={handleSend}
-                            isLoading={isLoading}
-                        />
-                    </Segment>
-                </Segment>
+                </Segment.Group>
+                <Form isFormOpen={isFormOpen} setIsFormOpen={setIsFormOpen}/>
             </Cell>
         </Grid>
     )

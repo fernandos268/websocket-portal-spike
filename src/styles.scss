@@ -2,15 +2,33 @@
 
 $md-primary-color:#03a9f4;
 
+
+
+.Grid {
+	border: 0px;
+}
+
+// .GridItem {
+// 	display: flex;
+// 	align-items: center;
+// 	justify-content: center;
+// 	background-color: #f8f8f0;
+// }
+
+.ui.card {
+	margin: 3em !important;
+	// box-shadow: 6px 6px 20px 0px rgba(161,158,161,1) !important;
+}
+
 .multiFields__addBtn {
 	width: 100%;
 	height: auto;
 	margin-top: 1em;
 	box-shadow: none;
-   overflow: hidden;
-   align-items: center;
-   justify-content: center;
-   display: flex;
+	overflow: hidden;
+	align-items: center;
+	justify-content: center;
+	display: flex;
 	padding: 8px 16px;
 	min-height: unset;
 	border-radius: .25em;
@@ -44,5 +62,30 @@ $md-primary-color:#03a9f4;
 	}
 }
 
+
+.rv-list {
+	border: 1px solid black;
+	box-sizing: border-box;
+}
+
+.rv-row {
+	width: 100%;
+	height: 100%;
+	border-bottom: 0;
+	display: flex;
+	flex-direction: row;
+
+	padding: 0 0.5rem;
+	box-sizing: border-box;
+}
+
+.rv-item {
+
+	display: inline-flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+
+}
 
 @include react-md-everything;
