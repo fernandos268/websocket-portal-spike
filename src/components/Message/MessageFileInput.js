@@ -58,8 +58,6 @@ export default (props) => {
 
     const draggerProps = {
         fileList,
-        processData: false,
-        processData: false,
         listType: "picture-card",
         showUploadList: false,
         accept: '.png, .jpg, .jpeg',
@@ -81,9 +79,10 @@ export default (props) => {
         return list.map(file => {
             const progress = uploadProgress.find(progress => progress.file_uid === file.uid) || {}
             return (
-                <Card>
+                <Card key={file.uid}>
                     <Dimmer.Dimmable
                         as={Image}
+                        fluid
                         dimmed={file.uid === isDimmed.target ? isDimmed.dimmed : false}
                         dimmer={{
                             active: file.uid === isDimmed.target ? isDimmed.dimmed : false,
@@ -104,12 +103,9 @@ export default (props) => {
                             target: file.uid,
                             dimmed: false
                         })}
-                        size='small'
                         src={file.url}
                     />
                     {
-
-
                         (file.uid === progress.file_uid && parseInt(progress.percent) > 0) &&
                         <Segment basic>
                             <Progress
@@ -149,61 +145,3 @@ export default (props) => {
         </Fragment>
     )
 }
-
-// {
-//     parseInt(uploadProgress) !== 0 &&{
-//     parseInt(uploadProgress) !== 0 &&
-//     <Progress percent={uploadProgress} status={uploadProgress !== 100 ? 'active' : 'success'} />
-// }
-// <div className="clearfix">
-//     <Upload {...draggerProps} >
-//         {uploadButton}
-//         <Progress
-//             strokeColor={{
-//                 '0%': '#108ee9',
-//                 '100%': '#87d068',
-//             }}
-//             percent={99.9}
-//             status='active'
-//             showInfo={false}
-//         />
-//     </Upload>
-//     <Modal visible={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
-//         <img alt="example" style={{ width: '100%' }} src={previewImage} />
-//     </Modal>
-// </div>
-
-//     <Upload {...draggerProps} >
-//         {uploadButton}
-//         <Progress
-//             strokeColor={{
-//                 '0%': '#108ee9',
-//                 '100%': '#87d068',
-//             }}
-//             percent={99.9}
-//             status='active'
-//             showInfo={false}
-//         />
-//     </Upload>
-//     <Modal visible={previewVisible} footer={null} onCancel={() => setPreviewVisible(false)}>
-//         <img alt="example" style={{ width: '100%' }} src={previewImage} />
-//     </Modal>
-// </div>
-
-
-
-// return (
-//     <div>
-//         {
-//             parseInt(uploadProgress) !== 0 &&
-//             <Progress percent={uploadProgress} status={uploadProgress !== 100 ? 'active' : 'success'} />
-//         }
-//         <Dragger {...draggerProps} listType="picture-card">
-//             <p className="ant-upload-drag-icon">
-//                 <Icon type="inbox" />
-//             </p>
-//             <p className="ant-upload-text">Click or drag file to attach here</p>
-//         </Dragger>
-
-//     </div>
-// )
