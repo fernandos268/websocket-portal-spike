@@ -44,12 +44,16 @@ export default () => {
 
     // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
     useEffect(() => {
-        socket.current.on('upload progress', data => setUploadProgressList(list => {
-            if (!list.find(e => e.file_uid === data.file_uid)) {
-                return [...list, data]
-            }
-            return list.map(e => e.file_uid === data.file_uid ? data : e)
-        }))
+        socket.current.on('upload progress', data => {
+            console.log('upload progress: ', data);
+
+            setUploadProgressList(list => {
+                if (!list.find(e => e.file_uid === data.file_uid)) {
+                    return [...list, data]
+                }
+                return list.map(e => e.file_uid === data.file_uid ? data : e)
+            })
+        })
     }, []);
 
     // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
@@ -156,31 +160,31 @@ export default () => {
             return message.error('USER AND MESSAGE FIELD IS REQUIRED')
         }
 
-        const kafka_message = { topic: 'tweets', messages: fieldValues.message}
-        socket.current.emit('kafka message', { kafka_message, socket_id: socketId })
+        // const kafka_message = { topic: 'tweets', messages: fieldValues.message}
+        // socket.current.emit('kafka message', { kafka_message, socket_id: socketId })
 
-        // if (!toUploadList.length) {
-        //     socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
-        // }
+        if (!toUploadList.length) {
+            socket.current.emit('send message', { ...fieldValues, socket_id: socketId })
+        }
 
-        // if (toUploadList.length) {
-        //     return toUploadList.forEach(file => {
-        //         const file_name = `${fieldValues.user}-${file.uid}--${file.name}`
-        //         const stream = socketIOStream.createStream()
-        //         socketIOStream(socket.current).emit('file upload', stream, {
-        //             fileInfo: file,
-        //             size: file.size,
-        //             file_name,
-        //             message: {
-        //                 ...fieldValues,
-        //                 socket_id: socketId
-        //             },
-        //             files_count: toUploadList.length
-        //         })
-        //         const blobstream = socketIOStream.createBlobReadStream(file)
-        //         blobstream.pipe(stream)
-        //     })
-        // }
+        if (toUploadList.length) {
+            return toUploadList.forEach(file => {
+                const file_name = `${fieldValues.user}-${file.uid}--${file.name}`
+                const stream = socketIOStream.createStream()
+                socketIOStream(socket.current).emit('file upload', stream, {
+                    fileInfo: file,
+                    size: file.size,
+                    file_name,
+                    message: {
+                        ...fieldValues,
+                        socket_id: socketId
+                    },
+                    files_count: toUploadList.length
+                })
+                const blobstream = socketIOStream.createBlobReadStream(file)
+                blobstream.pipe(stream)
+            })
+        }
     }
 
     return {
