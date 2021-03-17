@@ -31,7 +31,7 @@ export default () => {
     const [uploadFileCount, setUploadFileCount] = useState(0)
 
     useEffect(() => {
-        socket.current = socketIO('http://localhost:4040')
+        socket.current = socketIO('http://localhost:4141')
         socket.current.on('connected', socket_id => handleSetSocketID(socket_id))
         socket.current.on('new message', data => {
             setNewMessage(data)
@@ -40,10 +40,8 @@ export default () => {
                 files: []
             }])
         })
-    }, [])
 
-    // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
-    useEffect(() => {
+        // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
         socket.current.on('upload progress', data => {
             console.log('upload progress: ', data);
 
@@ -54,35 +52,51 @@ export default () => {
                 return list.map(e => e.file_uid === data.file_uid ? data : e)
             })
         })
-    }, []);
 
-    // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
-    useEffect(() => {
+        // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
         socket.current.on('upload-success', (data) => {
-            setUploadFileCount(data.files_count)
-            socket.current.emit('request-file', data)
+            console.log('%c 🥤 upload-success: ', 'font-size:20px;background-color: #ED9EC7;color:#fff;', data);
+            // setUploadFileCount(data.files_count)
+            // socket.current.emit('request-file', data)
+
+            setNewMessage(data.message)
+            setUploadedList(list => [...list, {
+                file_url: data.file_url,
+                file_name: data.file_name,
+                file_uid: data.file_uid
+            }])
         })
-    }, []);
+    }, [])
+
+    // // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
+    // useEffect(() => {
+
+    // }, []);
+
+    // // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
+    // useEffect(() => {
+
+    // }, []);
 
     // LISTEN ON EVENT FROM SERVER --> STREAM FILES FROM SERVER
-    useEffect(() => {
-        socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
-            setNewMessage(data.message)
-            let parts = []
-            stream.on('data', (chunk) => {
-                parts = [...parts, chunk]
-            })
+    // useEffect(() => {
+    //     socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
+    //         setNewMessage(data.message)
+    //         let parts = []
+    //         stream.on('data', (chunk) => {
+    //             parts = [...parts, chunk]
+    //         })
 
-            stream.on('end', () => {
-                setUploadedList(list => [...list, {
-                    file_url: parseImage(parts),
-                    file_name: data.file_name,
-                    file_uid: data.file_uid
-                }])
-                setNewMessage(data.message)
-            })
-        })
-    }, []);
+    //         stream.on('end', () => {
+    //             setUploadedList(list => [...list, {
+    //                 file_url: parseImage(parts),
+    //                 file_name: data.file_name,
+    //                 file_uid: data.file_uid
+    //             }])
+    //             setNewMessage(data.message)
+    //         })
+    //     })
+    // }, []);
 
     // WHEN ALL THE FILES ARE ALREADY RETTURNED FROM SERVER
     useEffect(() => {
