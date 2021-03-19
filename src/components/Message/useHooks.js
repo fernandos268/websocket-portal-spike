@@ -68,36 +68,6 @@ export default () => {
         })
     }, [])
 
-    // // LISTEN ON EVENT FROM SERVER --> UPLOAD PROGRESS SENT BY SERVER
-    // useEffect(() => {
-
-    // }, []);
-
-    // // LISTEN ON EVENT FROM SERVER --> ON UPLOADED FILE SUCCESS
-    // useEffect(() => {
-
-    // }, []);
-
-    // LISTEN ON EVENT FROM SERVER --> STREAM FILES FROM SERVER
-    // useEffect(() => {
-    //     socketIOStream(socket.current).on('stream-uploaded-file', (stream, data) => {
-    //         setNewMessage(data.message)
-    //         let parts = []
-    //         stream.on('data', (chunk) => {
-    //             parts = [...parts, chunk]
-    //         })
-
-    //         stream.on('end', () => {
-    //             setUploadedList(list => [...list, {
-    //                 file_url: parseImage(parts),
-    //                 file_name: data.file_name,
-    //                 file_uid: data.file_uid
-    //             }])
-    //             setNewMessage(data.message)
-    //         })
-    //     })
-    // }, []);
-
     // WHEN ALL THE FILES ARE ALREADY RETTURNED FROM SERVER
     useEffect(() => {
         if (uploadedList.length && uploadedList.length === toUploadList.length) {
